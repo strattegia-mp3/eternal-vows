@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&family=Press+Start+2P&display=swap");
+@import "tailwindcss";
+
+:root {
+  --primary: #432c7a;
+  --accent: #ffd700;
+  --gold: #d4af37;
+  --bg-dark: #1a0b2e;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-dark);
+  background: radial-gradient(circle at 50% 0%, #432c7a 0%, #1a0b2e 70%);
+  color: #f5f5f0;
+  font-family: "Montserrat", sans-serif;
+}
+
+.font-serif {
+  font-family: "Cormorant Garamond", serif;
+}
+
+.pixel-font {
+  font-family: "Press Start 2P", cursive;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 1000px;
+}
+
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
