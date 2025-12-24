@@ -1,27 +1,33 @@
+import herSong from "../assets/songs/her.mp3";
+import iWalkBesideYou from "../assets/songs/iWalkBesideYou.mp3";
+import merryGoRoundOfLife from "../assets/songs/merryGoRoundOfLife.mp3";
+import onTheColdestWinterNight from "../assets/songs/onTheColdestWinterNight.mp3";
+import thisSideOfParadise from "../assets/songs/thisSideOfParadise.mp3";
+
 export const playlist = [
   {
     title: "Her",
     artist: "JVKE",
-    url: "/public/songs/her.mp3",
+    url: herSong,
   },
   {
     title: "I Walk Beside You",
     artist: "Dream Theater",
-    url: "/public/songs/iWalkBesideYou.mp3",
+    url: iWalkBesideYou,
   },
   {
     title: "Merry-Go-Round of Life",
     artist: "Joe Hisaishi",
-    url: "/public/songs/merryGoRoundOfLife.mp3",
+    url: merryGoRoundOfLife,
   },
   {
     title: "On The Coldest Winter Night",
     artist: "Kamelot",
-    url: "/public/songs/onTheColdestWinterNight.mp3",
+    url: onTheColdestWinterNight,
   },
   {
     title: "This Side Of Paradise",
     artist: "Coyote Theory",
-    url: "/public/songs/thisSideOfParadise.mp3",
+    url: thisSideOfParadise,
   },
 ];
