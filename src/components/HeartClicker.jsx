@@ -36,7 +36,7 @@ const HeartClicker = () => {
 
   return (
     <div className="relative flex flex-col items-center justify-center my-20 p-4 select-none w-full">
-      <h3 className="text-[var(--gold)] font-serif text-2xl mb-2">
+      <h3 className="text-[var(--gold)] font-serif text-3xl md:text-4xl mb-2">
         Enviar Bençãos de Amor
       </h3>
       <p className="mb-6 text-sm opacity-70">

@@ -39,7 +39,7 @@ export const reasons = [
   "Agradeço aos céus todos os dias por terem cruzado nossas linhas do destino.",
   "Sois a minha dama, minha parceira, minha confidente e meu amor eterno.",
   "Não desejo outra glória que não seja a de ver-vos feliz ao meu lado.",
-  "Minha doce perdição.",
+  "Minha doce salvação.",
   "A soberana dos meus dias.",
   "Minha mais bela ventura.",
   "Luz do meu modesto reino.",

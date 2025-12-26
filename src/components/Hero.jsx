@@ -2,11 +2,16 @@ import { useEffect, useState, useRef } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import Timer from "./Timer";
+import corgis from "../assets/cute_corgis.gif";
 
 const Hero = () => {
   const START_DATE = "2025-09-03T00:00:00";
   const canvasRef = useRef(null);
 
+  // Ref para controlar o timer de reset (não causa re-render)
+  const resetTimerRef = useRef(null);
+
+  // --- Lógica do Canvas (Mantida idêntica, apenas omitida para focar na correção) ---
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -34,13 +39,10 @@ const Hero = () => {
       particles.forEach((p) => {
         p.x += p.speedX;
         p.y += p.speedY;
-
-        // Loop infinito tela
         if (p.x < 0) p.x = canvas.width;
         if (p.x > canvas.width) p.x = 0;
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
-
         ctx.globalAlpha = p.opacity;
         ctx.fillStyle = p.color;
         ctx.beginPath();
@@ -57,21 +59,40 @@ const Hero = () => {
     };
   }, []);
 
+  // --- Lógica do Easter Egg Corrigida ---
   const [tapCount, setTapCount] = useState(0);
   const [showSecret, setShowSecret] = useState(false);
 
   const handleTitleTap = () => {
-    setTapCount((prev) => prev + 1);
-    setTimeout(() => setTapCount(0), 2000);
-
-    if (tapCount + 1 === 5) {
-      setShowSecret(true);
-      setTapCount(0);
+    // 1. Limpa o timer anterior imediatamente
+    if (resetTimerRef.current) {
+      clearTimeout(resetTimerRef.current);
     }
+
+    // 2. Incrementa a contagem
+    // Usamos uma variável local para checar a vitória imediatamente sem esperar o state atualizar
+    const nextCount = tapCount + 1;
+    setTapCount(nextCount);
+
+    // 3. Checa vitória (5 cliques)
+    if (nextCount >= 5) {
+      setShowSecret(true);
+      setTapCount(0); // Reseta
+      return;
+    }
+
+    // 4. Inicia novo timer: Se parar de clicar por 1s, reseta a contagem
+    resetTimerRef.current = setTimeout(() => {
+      setTapCount(0);
+    }, 1000);
   };
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    // Limpeza de segurança ao desmontar
+    return () => {
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+    };
   }, []);
 
   return (
@@ -82,12 +103,16 @@ const Hero = () => {
       />
 
       <div className="z-10 p-6 flex flex-col items-center max-w-3xl">
+        {/* ÁREA DE TOQUE OTIMIZADA */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
-          onClick={handleTitleTap}
-          className="mb-6 cursor-pointer select-none active:scale-95 transition-transform"
+          // onTap é mais confiável que onClick para mobile no Framer Motion
+          onTap={handleTitleTap}
+          whileTap={{ scale: 0.9 }} // Feedback visual imediato ao tocar
+          className="mb-6 cursor-pointer select-none touch-manipulation relative p-4 rounded-xl active:bg-white/5 transition-colors"
+          style={{ WebkitTapHighlightColor: "transparent" }} // Remove retângulo azul no Android/iOS
         >
           <h2 className="text-[var(--gold)] tracking-[0.2em] text-xs md:text-sm uppercase font-bold mb-2">
             Desde o ano de 2025
@@ -95,6 +120,9 @@ const Hero = () => {
           <h1 className="font-serif text-5xl md:text-7xl text-white drop-shadow-[0_0_15px_rgba(255,215,0,0.3)]">
             Nossa Aliança
           </h1>
+
+          {/* Debug visual opcional (remover depois): mostra quantos toques faltam */}
+          {/* {tapCount > 0 && <span className="absolute -top-2 right-0 text-xs text-red-500 font-bold">{tapCount}</span>} */}
         </motion.div>
 
         <motion.p
@@ -109,7 +137,6 @@ const Hero = () => {
         <Timer startDate={START_DATE} />
       </div>
 
-      {/* Indicador de Scroll */}
       <motion.div
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
@@ -123,30 +150,37 @@ const Hero = () => {
       <AnimatePresence>
         {showSecret && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-sm"
             onClick={() => setShowSecret(false)}
           >
             <motion.div
               initial={{ rotate: -10, scale: 0 }}
               animate={{ rotate: 0, scale: 1 }}
               exit={{ rotate: 10, scale: 0 }}
-              className="bg-white p-4 pb-12 rounded shadow-2xl transform rotate-2 max-w-xs text-center text-black"
+              className="bg-white p-6 rounded shadow-2xl transform rotate-2 max-w-xs text-center text-black border-4 border-[var(--gold)]"
+              onClick={(e) => e.stopPropagation()} // Evita fechar se clicar dentro do card
             >
-              <h2 className="text-xl font-bold mb-2 font-serif text-red-600">
+              <h2 className="text-lg font-bold mb-2 text-red-600">
                 Achievement Unlocked! 🏆
               </h2>
               <p className="text-sm mb-4">Você descobriu a área secreta!</p>
 
               <img
-                src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZWdnd2VlYjdseThmNDQ2b3N1cnIyNTl0MWszZWNvOGs0bjM1am50byZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qCT06WLJURMyfsEi2r/giphy.gif"
-                alt="Segredo"
-                className="w-full rounded mb-4"
+                src={corgis}
+                alt="GIF fofinho"
+                className="w-full rounded mb-4 border border-gray-200"
               />
 
-              <p className="font-handwriting text-lg">
+              <p className="font-serif text-xl text-[var(--bg-dark)]">
                 "Eu te amo muito, minha querida donzela!"
               </p>
-              <p className="text-xs text-gray-500 mt-4">(Toque para fechar)</p>
+
+              <button
+                onClick={() => setShowSecret(false)}
+                className="text-xs text-gray-500 mt-4 px-4 py-2 rounded-xs outline-1 font-bold uppercase tracking-widest hover:bg-gray-200 transition cursor-pointer"
+              >
+                Fechar
+              </button>
             </motion.div>
           </div>
         )}

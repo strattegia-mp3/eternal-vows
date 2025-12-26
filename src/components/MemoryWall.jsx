@@ -76,10 +76,10 @@ const MemoryWall = () => {
   return (
     <div className="px-4 py-12 max-w-4xl mx-auto z-20 relative">
       <div className="text-center mb-10">
-        <h2 className="text-4xl text-[var(--gold)] font-serif italic mb-2 drop-shadow-md">
+        <h2 className="text-3xl md:text-4xl text-[var(--gold)] font-serif italic mb-2 drop-shadow-md">
           Crônicas do Nosso Reino
         </h2>
-        <div className="h-[2px] w-24 bg-[var(--gold)] mx-auto opacity-70"></div>
+        <div className="h-px w-24 bg-[var(--gold)] mx-auto opacity-70"></div>
         <p className="text-sm mt-2 opacity-80 font-serif">
           Toque nas memórias para ler o pergaminho
         </p>

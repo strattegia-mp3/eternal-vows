@@ -4,15 +4,23 @@ import { motion, AnimatePresence } from "framer-motion";
 const Footer = () => {
   const [showFireworks, setShowFireworks] = useState(false);
 
+  // OTIMIZAÇÃO 1: Calculamos TUDO (inclusive posição inicial) no useMemo.
+  // Isso evita que o React tenha que medir a tela durante o "paint" da animação.
   const particles = useMemo(() => {
+    // Verificação de segurança para window (caso rode em ambiente server-side inicialmente)
+    const height = typeof window !== "undefined" ? window.innerHeight : 800;
+    const width = typeof window !== "undefined" ? window.innerWidth : 400;
+
     return [...Array(20)].map((_, i) => ({
       id: i,
-      // Posição final aleatória (X e Y)
-      x: (Math.random() - 0.5) * window.innerWidth, // Espalha horizontalmente
-      y: -(Math.random() * window.innerHeight * 0.8) - 100, // Sobe entre 100px e 80% da tela
-      rotation: Math.random() * 520, // Rotação aleatória
-      scale: Math.random() * 1.2 + 0.8, // Tamanho entre 0.8x e 2x
-      duration: Math.random() * 1.5 + 1.5, // Duração variável
+      // Posição FINAL
+      x: (Math.random() - 0.5) * width,
+      y: -(Math.random() * height * 0.8) - 100,
+      // Posição INICIAL (Pré-calculada)
+      initialY: height / 2 + 50,
+      rotation: Math.random() * 520,
+      scale: Math.random() * 1.2 + 0.8,
+      duration: Math.random() * 1.5 + 1.5,
     }));
   }, []);
 
@@ -47,24 +55,30 @@ const Footer = () => {
 
       <AnimatePresence>
         {showFireworks && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[999] flex items-center justify-center pointer-events-none"
-          >
-            <div className="absolute inset-0 bg-black/70"></div>
+          <div className="fixed inset-0 z-[999] flex items-center justify-center pointer-events-none">
+            {/* Fundo escuro simples (sem blur para não travar a transição) */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/70"
+            />
 
             {/* Renderização das Partículas Otimizadas */}
             {particles.map((p) => (
               <motion.div
                 key={p.id}
-                className="absolute text-red-500 drop-shadow-md will-change-transform"
-                style={{ fontSize: "2.5rem" }}
+                // OTIMIZAÇÃO 2: Removido 'drop-shadow-md'. Sombras em movimento matam a performance mobile.
+                className="absolute text-red-500 will-change-transform"
+                style={{
+                  fontSize: "2.5rem",
+                  // OTIMIZAÇÃO 3: Força a GPU a criar uma camada para cada partícula
+                  transform: "translateZ(0)",
+                }}
                 initial={{
                   opacity: 1,
                   x: 0,
-                  y: window.innerHeight / 2 + 50,
+                  y: p.initialY, // Valor lido da memória, sem cálculo matemático aqui
                   scale: 0.5,
                 }}
                 animate={{
@@ -89,24 +103,25 @@ const Footer = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: -20 }}
               transition={{
-                delay: 0.3,
+                delay: 0.2, // Reduzi levemente o delay para parecer mais responsivo
                 type: "spring",
                 stiffness: 200,
                 damping: 20,
               }}
               className="relative z-10 bg-[var(--bg-dark)] border-2 border-[var(--gold)] p-6 md:p-8 rounded-lg text-center shadow-2xl"
+              style={{ transform: "translateZ(0)" }} // Força GPU no modal também
             >
-              <h2 className="font-serif text-3xl md:text-5xl font-bold text-[var(--gold)] mb-3 drop-shadow-lg">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-[var(--gold)] mb-3 drop-shadow-lg">
                 Todo o meu reino é seu.
               </h2>
-              <p className="font-serif text-white/90 italic text-lg md:text-xl">
+              <p className="font-serif text-white/90 italic text-base md:text-lg">
                 Eu te amo, minha princesa!
               </p>
               <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-5xl filter drop-shadow-lg">
                 👑
               </div>
             </motion.div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </>

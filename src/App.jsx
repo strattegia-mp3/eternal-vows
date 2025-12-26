@@ -1,117 +1,124 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import Hero from "./components/Hero";
-import TypewriterLetter from "./components/LoveLetter";
-import HeartClicker from "./components/HeartClicker";
-import MemoryWall from "./components/MemoryWall";
-import Gatekeeper from "./components/Gatekeeper";
-import Familiar from "./components/Familiar";
-import MessageInABottle from "./components/MessageInABottle";
-import PotionShop from "./components/PotionShop";
+import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
 import { SecurityProvider } from "./context/SecurityContext";
-import BackgroundAudio from "./components/BackgroundAudio";
 import { playlist } from "./data/playlist";
-import Footer from "./components/Footer";
+import { useAudioPlayer } from "./hooks/useAudioPlayer";
+import SectionWrapper from "./components/SectionWrapper";
+
+// Importando TUDO de um único lugar (limpo!)
+import {
+  Hero,
+  PotionShop,
+  TypewriterLetter,
+  Gatekeeper,
+  BackgroundAudio,
+  Footer, // Eager
+  MemoryWall,
+  HeartClicker,
+  Familiar,
+  MessageInABottle,
+  StatsGrimoire,
+  AttributeRadar,
+  SkillTree,
+  QuestLog,
+  LunarAlignment,
+  InterstellarVoyage,
+  DestinyDice,
+  Covenant,
+  SpotifyPlayer,
+} from "./components";
+
+// Loader unificado
+const FullLoader = () => (
+  <div className="w-full h-40 flex items-center justify-center text-[var(--gold)]">
+    <Loader2 className="animate-spin w-10 h-10 opacity-60" />
+  </div>
+);
 
 function App() {
-  // Inicializa com uma música aleatória
-  const [currentIndex, setCurrentIndex] = useState(() =>
-    Math.floor(Math.random() * playlist.length)
-  );
-
-  // Criamos o audio já com a música sorteada
-  const audioRef = useRef(new Audio(playlist[currentIndex].url));
-
-  // Função para tocar
-  const playMusic = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = 0.4;
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((error) =>
-          console.log("Aguardando interação...", error)
-        );
-      }
-    }
-  }, []);
-
-  // Lógica de Tocar/Pausar manual
-  const togglePlay = () => {
-    if (audioRef.current) {
-      if (audioRef.current.paused) {
-        playMusic();
-      } else {
-        audioRef.current.pause();
-      }
-    }
-  };
-
-  // Lógica de "Próxima Música"
-  const playRandomNext = useCallback(() => {
-    let nextIndex;
-
-    if (playlist.length > 1) {
-      do {
-        nextIndex = Math.floor(Math.random() * playlist.length);
-      } while (nextIndex === currentIndex);
-    } else {
-      nextIndex = 0;
-    }
-
-    setCurrentIndex(nextIndex);
-
-    if (audioRef.current) {
-      audioRef.current.src = playlist[nextIndex].url;
-      audioRef.current.load();
-      playMusic();
-    }
-  }, [currentIndex, playMusic]);
-
-  // Listener para quando a música acaba -> Toca a próxima
-  useEffect(() => {
-    const audio = audioRef.current;
-
-    const handleEnded = () => {
-      playRandomNext();
-    };
-
-    audio.addEventListener("ended", handleEnded);
-    return () => audio.removeEventListener("ended", handleEnded);
-  }, [playRandomNext]);
+  const { audioRef, currentSong, playMusic, playRandomNext, togglePlay } =
+    useAudioPlayer(playlist);
 
   return (
     <SecurityProvider>
       <Gatekeeper onUnlock={playMusic}>
-        <div className="min-h-screen pb-10 relative">
+        <div className="min-h-screen pb-10 relative overflow-x-hidden bg-[var(--bg-dark)]">
+          {/* Elementos Fixos/Overlays */}
           <PotionShop />
+          <Suspense fallback={null}>
+            <Familiar />
+          </Suspense>
+
+          {/* --- BLOCO 1: ABERTURA & EMOÇÃO --- */}
           <Hero />
 
-          <div className="relative z-20 flex flex-col gap-8 px-4">
+          <SectionWrapper>
             <TypewriterLetter />
-            <MemoryWall />
-            <HeartClicker />
+          </SectionWrapper>
 
-            {/* Player do Spotify */}
-            <div className="mx-auto w-full max-w-md my-8 shadow-2xl border border-[var(--gold)]/20 rounded-xl overflow-hidden">
-              <iframe
-                style={{ borderRadius: "12px" }}
-                src="https://open.spotify.com/embed/playlist/0XTTaP9EWyL68k7EiOJf3n?utm_source=generator"
-                width="100%"
-                height="152"
-                frameBorder="0"
-                allowFullScreen=""
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-              ></iframe>
+          {/* Suspense envolve o restante do conteúdo pesado */}
+          <Suspense fallback={<FullLoader />}>
+            {/* --- BLOCO 2: MEMÓRIAS & FUNDAMENTO --- */}
+            <SectionWrapper>
+              <MemoryWall />
+            </SectionWrapper>
+
+            <SectionWrapper>
+              <Covenant />{" "}
+              {/* O fundamento espiritual vem cedo para firmar a relação */}
+            </SectionWrapper>
+
+            {/* --- BLOCO 3: CÓSMICO --- */}
+            <SectionWrapper className="space-y-20">
+              <LunarAlignment dateString="2025-09-03" />
+              <InterstellarVoyage startDate="2025-09-03T00:00:00" />
+            </SectionWrapper>
+
+            {/* --- BLOCO 4: GAMIFICAÇÃO & RPG (O "Meaty Part") --- */}
+            <div className="py-12 rounded-3xl my-12 border-y border-[var(--gold)]/10">
+              <h2 className="flex justify-center text-3xl md:text-5xl font-serif text-[var(--gold)] mb-12 text-center drop-shadow-lg py-12">
+                📊 Status do Casal 🤓
+              </h2>
+
+              <SectionWrapper className="!py-8">
+                <StatsGrimoire startDate="2025-09-03T00:00:00" />
+                <AttributeRadar />
+              </SectionWrapper>
+
+              <SectionWrapper className="!py-8">
+                <SkillTree />
+              </SectionWrapper>
+
+              <SectionWrapper className="!py-8">
+                <QuestLog />
+              </SectionWrapper>
+
+              <SectionWrapper className="!py-8">
+                <DestinyDice />
+              </SectionWrapper>
             </div>
 
-            <MessageInABottle />
-            <Footer />
-          </div>
+            {/* --- BLOCO 5: INTERATIVIDADE & VIBE --- */}
+            <SectionWrapper>
+              <HeartClicker />
+            </SectionWrapper>
 
-          <Familiar />
+            <SectionWrapper>
+              <SpotifyPlayer />
+            </SectionWrapper>
+
+            {/* --- BLOCO 6: DESPEDIDA --- */}
+            <SectionWrapper className="mb-20">
+              <MessageInABottle />
+            </SectionWrapper>
+
+            <Footer />
+          </Suspense>
+
+          {/* Controlador de Áudio (Invisível/Discreto) */}
           <BackgroundAudio
             audioRef={audioRef}
-            currentSong={playlist[currentIndex]}
+            currentSong={currentSong}
             onNext={playRandomNext}
             onTogglePlay={togglePlay}
           />
