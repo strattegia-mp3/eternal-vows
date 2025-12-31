@@ -1,6 +1,7 @@
 import { lazy } from "react";
 
 // COMPONENTES CRÍTICOS
+export { default as SecretReveal } from "./SecretReveal";
 export { default as Hero } from "./Hero";
 export { default as PotionShop } from "./PotionShop";
 export { default as TypewriterLetter } from "./LoveLetter";

@@ -12,7 +12,7 @@ import {
   TypewriterLetter,
   Gatekeeper,
   BackgroundAudio,
-  Footer, // Eager
+  Footer,
   MemoryWall,
   HeartClicker,
   Familiar,
@@ -26,6 +26,7 @@ import {
   DestinyDice,
   Covenant,
   SpotifyPlayer,
+  SecretReveal,
 } from "./components";
 
 // Loader unificado
@@ -41,6 +42,7 @@ function App() {
 
   return (
     <SecurityProvider>
+      <SecretReveal />
       <Gatekeeper onUnlock={playMusic}>
         <div className="min-h-screen pb-10 relative overflow-x-hidden bg-[var(--bg-dark)]">
           {/* Elementos Fixos/Overlays */}
